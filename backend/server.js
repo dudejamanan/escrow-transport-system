@@ -1,19 +1,25 @@
 const express = require("express");
-const cors = require("cors");
-
-const escrowRoutes = require("./routes/escrowRoutes");
+const pool = require("./config/db");
 
 const app = express();
+const PORT = 3000;
 
-app.use(cors());
 app.use(express.json());
 
-app.use("/api", escrowRoutes);
-
-app.get("/", (req, res) => {
-  res.send("Escrow Backend Running");
+// Test database connection
+app.get("/test-db", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM users");
+    res.json({
+      message: "Database connected successfully",
+      data: result.rows
+    });
+  } catch (error) {
+  console.error(error);
+  res.status(500).json({ error: error.message });
+}
 });
 
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
