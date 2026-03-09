@@ -1,51 +1,16 @@
-# Smart Contract Escrow System for Transportation Apps
+# React + Vite
 
-## Overview
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-This project is being developed for **GLITCHCON 2.0**.
-The goal is to build a **blockchain-based escrow payment system** that automatically manages payments between customers and suppliers in transportation or logistics services.
+Currently, two official plugins are available:
 
-When an order is placed, the payment is locked in an escrow smart contract. Once delivery is confirmed, the payment is automatically released to the supplier.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
----
+## React Compiler
 
-## Core Idea
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-1. Customer places an order
-2. Payment is locked in escrow
-3. Driver delivers the order
-4. Customer confirms delivery
-5. Smart contract releases payment
+## Expanding the ESLint configuration
 
-This ensures **trust, transparency, and automated settlement**.
-
----
-
-## Project Structure
-
-```
-escrow-transport-system
-│
-├── frontend      # React web dashboard
-├── mobile        # Flutter mobile app
-├── backend       # Node.js API
-├── blockchain    # Smart contracts
-├── database      # DB schema
-└── docs          # Project documentation
-```
-
----
-
-## Tech Stack
-
-* Frontend: React
-* Mobile: Flutter
-* Backend: Node.js + Express
-* Blockchain: Solidity / Hardhat
-* Database: PostgreSQL or MongoDB
-
----
-
-## Status
-
-🚧 Project setup in progress for the hackathon.
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
