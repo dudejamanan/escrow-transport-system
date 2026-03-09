@@ -7,6 +7,7 @@ const userRoutes = require("./routes/userRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const deliveryRoutes = require("./routes/deliveryRoutes");
 const escrowRoutes = require("./routes/escrowRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 const app = express();
 const PORT = 3000;
@@ -43,6 +44,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/delivery", deliveryRoutes);
 app.use("/api/escrow", escrowRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // 404 handler
 app.use((req, res, next) => {

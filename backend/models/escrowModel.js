@@ -5,10 +5,10 @@ async function getEscrows() {
     return result.rows;
 }
 
-async function createEscrow(buyer, seller, amount) {
+async function createEscrow(buyer, seller, amount, paymentId = null, transactionHash = null) {
   const result = await pool.query(
-    "INSERT INTO escrow_transactions (order_id, contract_address, tx_hash, amount, status) VALUES ($1,$2,$3,$4,$5) RETURNING *",
-    [1, "0xcontract123", "0xtx123", amount, "LOCKED"]
+    "INSERT INTO escrow_transactions (order_id, contract_address, tx_hash, amount, status, payment_id) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
+    [1, "0xcontract123", transactionHash || "0xtx123", amount, "LOCKED", paymentId]
   );
 
   return result.rows[0];
