@@ -32,7 +32,6 @@ contract Escrow {
     event DisputeRaised(uint orderId);
     event RefundIssued(uint orderId);
 
-    // Customer creates order and locks payment
     function createOrder(address _driver) public payable {
 
         require(msg.value > 0, "Payment required");
@@ -52,21 +51,19 @@ contract Escrow {
         emit OrderCreated(orderCount, msg.sender, _driver, msg.value);
     }
 
-    // Driver submits delivery proof (IPFS hash)
     function submitDelivery(uint _orderId, string memory _proofHash) public {
 
         Order storage order = orders[_orderId];
 
-        require(msg.sender == order.driver, "Only driver can submit");
-        require(order.status == OrderStatus.Created, "Invalid order state");
-
+        require(msg.sender == order.driver, "Only driver");
+        require(order.status == OrderStatus.Created, "Invalid state");
+        require(bytes(_proofHash).length > 0, "Proof required");
         order.proofHash = _proofHash;
         order.status = OrderStatus.Delivered;
 
         emit DeliverySubmitted(_orderId, _proofHash);
     }
 
-    // Customer confirms delivery
     function confirmDelivery(uint _orderId) public {
 
         Order storage order = orders[_orderId];
@@ -82,7 +79,6 @@ contract Escrow {
         emit PaymentReleased(_orderId);
     }
 
-    // Customer raises dispute
     function raiseDispute(uint _orderId) public {
 
         Order storage order = orders[_orderId];
@@ -95,12 +91,11 @@ contract Escrow {
         emit DisputeRaised(_orderId);
     }
 
-    // Admin/system resolves dispute with refund
     function refundCustomer(uint _orderId) public {
 
         Order storage order = orders[_orderId];
 
-        require(order.status == OrderStatus.Disputed, "No dispute active");
+        require(order.status == OrderStatus.Disputed, "No dispute");
 
         order.status = OrderStatus.Refunded;
 
@@ -109,7 +104,6 @@ contract Escrow {
         emit RefundIssued(_orderId);
     }
 
-    // Helper function to fetch order details
     function getOrder(uint _orderId) public view returns (Order memory) {
         return orders[_orderId];
     }

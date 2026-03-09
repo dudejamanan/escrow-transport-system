@@ -1,23 +1,72 @@
 const { ethers } = require("ethers");
 
-const provider = new ethers.JsonRpcProvider(
-  "https://sepolia.infura.io/v3/YOUR_INFURA_KEY"
-);
+const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
 
-const wallet = new ethers.Wallet(
-  "YOUR_PRIVATE_KEY",
-  provider
-);
+const privateKey = process.env.PRIVATE_KEY;
 
-const contractAddress = "YOUR_CONTRACT_ADDRESS";
+const wallet = new ethers.Wallet(privateKey, provider);
 
-const contractABI = [
-  "function releaseFunds(uint256 escrowId) public",
-  "function refund(uint256 escrowId) public"
-];
+const contractAddress = process.env.CONTRACT_ADDRESS;
 
-const contract = new ethers.Contract(
+const contractABI = require("../../blockchain/artifacts/contracts/Escrow.sol/Escrow.json").abi;
+
+const escrowContract = new ethers.Contract(
   contractAddress,
   contractABI,
   wallet
 );
+
+async function createOrder(driverAddress, payment) {
+
+  const tx = await escrowContract.createOrder(driverAddress, {
+    value: payment
+  });
+
+  await tx.wait();
+
+  return tx.hash;
+}
+
+async function submitDelivery(orderId, proofHash) {
+
+  const tx = await escrowContract.submitDelivery(orderId, proofHash);
+
+  await tx.wait();
+
+  return tx.hash;
+}
+
+async function confirmDelivery(orderId) {
+
+  const tx = await escrowContract.confirmDelivery(orderId);
+
+  await tx.wait();
+
+  return tx.hash;
+}
+
+async function raiseDispute(orderId) {
+
+  const tx = await escrowContract.raiseDispute(orderId);
+
+  await tx.wait();
+
+  return tx.hash;
+}
+
+async function refundCustomer(orderId) {
+
+  const tx = await escrowContract.refundCustomer(orderId);
+
+  await tx.wait();
+
+  return tx.hash;
+}
+
+module.exports = {
+  createOrder,
+  submitDelivery,
+  confirmDelivery,
+  raiseDispute,
+  refundCustomer
+};
