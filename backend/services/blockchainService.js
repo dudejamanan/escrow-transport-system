@@ -19,8 +19,8 @@ const escrowContract = new ethers.Contract(
 async function createOrder(driverAddress, payment) {
 
   const tx = await escrowContract.createOrder(driverAddress, {
-    value: payment
-  });
+  value: ethers.parseEther(payment.toString())
+});
 
   await tx.wait();
 

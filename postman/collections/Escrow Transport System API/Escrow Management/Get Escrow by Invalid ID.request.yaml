@@ -1,0 +1,18 @@
+$kind: http-request
+name: Get Escrow by Invalid ID
+method: GET
+url: '{{baseUrl}}/api/escrow/escrow/999999'
+order: 4000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Response for non-existent ID is handled", function () {
+          // Either 404 or 200 with null/undefined body
+          const status = pm.response.code;
+          const json = pm.response.json();
+          pm.expect([200, 404]).to.include(status);
+          if (status === 200) {
+              pm.expect(json).to.be.oneOf([null, undefined, {}]);
+          }
+      });

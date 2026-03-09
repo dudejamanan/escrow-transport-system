@@ -1,0 +1,13 @@
+{
+  "id": "79132c34-ecc3-4af0-8e9e-40aea3235576",
+  "version": 1,
+  "name": "Escrow Transport System API",
+  "protocol": "http",
+  "port": 4500,
+  "mockSrc": "./mock.js",
+  "autoRestartOnChange": true,
+  "logging": {
+    "level": "verbose",
+    "showBody": true
+  }
+}

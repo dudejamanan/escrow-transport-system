@@ -1,0 +1,23 @@
+$kind: http-request
+name: Release Funds
+method: POST
+url: '{{baseUrl}}/api/escrow/releaseFunds/{{escrowId}}'
+order: 1000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Status is completed", function () {
+          const json = pm.response.json();
+          pm.expect(json.status).to.eql("completed");
+      });
+      pm.test("ID matches", function () {
+          const json = pm.response.json();
+          pm.expect(String(json.id)).to.eql(String(pm.collectionVariables.get("escrowId")));
+      });
+      pm.test("Response time is less than 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });

@@ -1,0 +1,7 @@
+$kind: collection
+name: Escrow Transport System API
+variables:
+  - key: baseUrl
+    value: '{{baseUrl}}'
+  - key: escrowId
+    value: ''

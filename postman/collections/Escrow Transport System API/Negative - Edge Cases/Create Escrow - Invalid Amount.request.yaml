@@ -1,0 +1,23 @@
+$kind: http-request
+name: Create Escrow - Invalid Amount
+method: POST
+url: '{{baseUrl}}/api/escrow/createEscrow'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "buyer_wallet": "0xBuyerWalletAddress123",
+      "seller_wallet": "0xSellerWalletAddress456",
+      "amount": -500
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Negative amount is rejected or handled", function () {
+          pm.expect([400, 422, 500]).to.include(pm.response.code);
+      });

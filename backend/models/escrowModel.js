@@ -1,14 +1,14 @@
 const pool = require("../config/db");
 
 async function getEscrows() {
-    const result = await pool.query("SELECT * FROM escrows");
+    const result = await pool.query("SELECT * FROM escrow_transactions");
     return result.rows;
 }
 
 async function createEscrow(buyer, seller, amount) {
   const result = await pool.query(
-    "INSERT INTO escrows (buyer_wallet, seller_wallet, amount, status) VALUES ($1,$2,$3,$4) RETURNING *",
-    [buyer, seller, amount, "pending"]
+    "INSERT INTO escrow_transactions (order_id, contract_address, tx_hash, amount, status) VALUES ($1,$2,$3,$4,$5) RETURNING *",
+    [1, "0xcontract123", "0xtx123", amount, "LOCKED"]
   );
 
   return result.rows[0];
@@ -16,7 +16,7 @@ async function createEscrow(buyer, seller, amount) {
 
 async function getEscrowById(id) {
   const result = await pool.query(
-    "SELECT * FROM escrows WHERE id=$1",
+    "SELECT * FROM escrow_transactions WHERE id=$1",
     [id]
   );
 
@@ -26,8 +26,8 @@ async function getEscrowById(id) {
 async function releaseFunds(id) {
 
   const result = await pool.query(
-    "UPDATE escrows SET status=$1 WHERE id=$2 RETURNING *",
-    ["completed", id]
+    "UPDATE escrow_transactions SET status=$1 WHERE id=$2 RETURNING *",
+    ["RELEASED", id]
   );
 
   return result.rows[0];
@@ -35,8 +35,8 @@ async function releaseFunds(id) {
 
 async function refundEscrow(id) {
   const result = await pool.query(
-    "UPDATE escrows SET status=$1 WHERE id=$2 RETURNING *",
-    ["refunded", id]
+    "UPDATE escrow_transactions SET status=$1 WHERE id=$2 RETURNING *",
+    ["REFUNDED", id]
   );
 
   return result.rows[0];

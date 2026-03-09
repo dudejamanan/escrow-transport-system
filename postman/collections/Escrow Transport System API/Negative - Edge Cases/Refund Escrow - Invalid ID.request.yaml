@@ -1,0 +1,13 @@
+$kind: http-request
+name: Refund Escrow - Invalid ID
+method: POST
+url: '{{baseUrl}}/api/escrow/refund/999999'
+order: 4000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Invalid ID returns error or null", function () {
+          const status = pm.response.code;
+          pm.expect([200, 404, 500]).to.include(status);
+      });

@@ -1,0 +1,47 @@
+$kind: http-request
+name: Create Escrow
+method: POST
+url: '{{baseUrl}}/api/escrow/createEscrow'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "buyer_wallet": "0xBuyerWalletAddress123",
+      "seller_wallet": "0xSellerWalletAddress456",
+      "amount": 1000
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has escrow id", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.collectionVariables.set("escrowId", json.id);
+      });
+      pm.test("Status is pending", function () {
+          const json = pm.response.json();
+          pm.expect(json.status).to.eql("pending");
+      });
+      pm.test("Buyer wallet matches", function () {
+          const json = pm.response.json();
+          pm.expect(json.buyer_wallet).to.eql("0xBuyerWalletAddress123");
+      });
+      pm.test("Seller wallet matches", function () {
+          const json = pm.response.json();
+          pm.expect(json.seller_wallet).to.eql("0xSellerWalletAddress456");
+      });
+      pm.test("Amount matches", function () {
+          const json = pm.response.json();
+          pm.expect(Number(json.amount)).to.eql(1000);
+      });
+      pm.test("Response time is less than 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });

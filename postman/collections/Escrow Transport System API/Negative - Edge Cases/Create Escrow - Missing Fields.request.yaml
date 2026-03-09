@@ -1,0 +1,19 @@
+$kind: http-request
+name: Create Escrow - Missing Fields
+method: POST
+url: '{{baseUrl}}/api/escrow/createEscrow'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Missing fields returns error or handles gracefully", function () {
+          pm.expect([400, 422, 500]).to.include(pm.response.code);
+      });

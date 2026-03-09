@@ -1,0 +1,23 @@
+$kind: http-request
+name: Get Escrow by ID
+method: GET
+url: '{{baseUrl}}/api/escrow/escrow/{{escrowId}}'
+order: 3000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response has correct id", function () {
+          const json = pm.response.json();
+          pm.expect(String(json.id)).to.eql(String(pm.collectionVariables.get("escrowId")));
+      });
+      pm.test("Response has required fields", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.all.keys("id", "buyer_wallet", "seller_wallet", "amount", "status");
+      });
+      pm.test("Response time is less than 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
