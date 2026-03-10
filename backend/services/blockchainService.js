@@ -62,6 +62,8 @@ async function createOrder(driverAddress, payment) {
   console.log("Transaction sent:", tx.hash);
 
   const receipt = await tx.wait();
+  console.log("Transaction receipt:", receipt);
+console.log("Logs:", receipt.logs);
 
   console.log("Transaction confirmed");
 
@@ -79,7 +81,7 @@ async function createOrder(driverAddress, payment) {
     throw new Error("OrderCreated event not found");
   }
 
-  const orderId = Number(event.args.orderId);
+  const orderId = Number(event.args[0]);
 
   console.log("Blockchain order id:", orderId);
 
