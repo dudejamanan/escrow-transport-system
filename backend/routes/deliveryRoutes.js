@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { submitDelivery } = require("../services/blockchainService");
 const { authenticateToken, authorizeRoles } = require("../middleware/auth");
 const {
   uploadDeliveryProof,
@@ -17,7 +18,7 @@ const {
 } = require("../models/deliveryModel");
 
 // Upload delivery proof (driver only)
-router.post("/proofs", authenticateToken, authorizeRoles("driver"), async (req, res) => {
+router.post("/proofs", async (req, res) =>  {
   try {
     const { orderId, imageUrl } = req.body;
 
@@ -28,12 +29,16 @@ router.post("/proofs", authenticateToken, authorizeRoles("driver"), async (req, 
       });
     }
 
-    // Upload delivery proof
-    const proof = await uploadDeliveryProof(orderId, req.user.id, imageUrl);
-    
+    // Upload delivery proof to database
+    const proof = await uploadDeliveryProof(orderId, 1, imageUrl);
+
+    // Submit proof to blockchain
+    const txHash = await submitDelivery(orderId, imageUrl);
+
     res.status(201).json({
-      message: "Delivery proof uploaded successfully",
-      proof
+      message: "Delivery proof uploaded and recorded on blockchain",
+      proof,
+      blockchain_transaction: txHash
     });
 
   } catch (error) {

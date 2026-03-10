@@ -90,20 +90,25 @@ contract Escrow {
 
         emit DisputeRaised(_orderId);
     }
+address public owner;
 
+constructor() {
+    owner = msg.sender;
+}
     function refundCustomer(uint _orderId) public {
 
-        Order storage order = orders[_orderId];
+    require(msg.sender == owner, "Only admin");
 
-        require(order.status == OrderStatus.Disputed, "No dispute");
+    Order storage order = orders[_orderId];
 
-        order.status = OrderStatus.Refunded;
+    require(order.status == OrderStatus.Disputed, "No dispute");
 
-        payable(order.customer).transfer(order.amount);
+    order.status = OrderStatus.Refunded;
 
-        emit RefundIssued(_orderId);
-    }
+    payable(order.customer).transfer(order.amount);
 
+    emit RefundIssued(_orderId);
+}
     function getOrder(uint _orderId) public view returns (Order memory) {
         return orders[_orderId];
     }
