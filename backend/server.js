@@ -65,6 +65,6 @@ app.listen(PORT, () => {
 });
 
 console.log("Starting Express server...");
-setInterval(() => {
-  console.log("Server heartbeat 💓");
-}, 5000);
+//setInterval(() => {
+//  console.log("Server heartbeat 💓");
+//}, 5000);

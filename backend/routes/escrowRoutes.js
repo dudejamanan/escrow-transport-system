@@ -14,7 +14,7 @@ const {
   createOrder,
   confirmDelivery,
   refundCustomer
-} = require("../services/mockBlockchainService");
+} = require("../services/blockchainService");
 
 // Test route
 router.get("/test", (req, res) => {
@@ -32,20 +32,20 @@ router.post("/createEscrow", async (req, res) => {
 
     const { buyer_wallet, seller_wallet, amount } = req.body;
 
-    // 1️⃣ call blockchain
-    const txHash = await createOrder(seller_wallet, amount);
+    const result = await createOrder(seller_wallet, amount);
 
-    // 2️⃣ store in database
     const escrow = await createEscrow(
-      buyer_wallet,
-      seller_wallet,
+      result.orderId,
+      process.env.CONTRACT_ADDRESS,
+      result.txHash,
       amount
     );
 
     res.json({
       message: "Escrow created",
       escrow,
-      transaction: txHash
+      transaction: result.txHash,
+      orderId: result.orderId
     });
 
   } catch (error) {
