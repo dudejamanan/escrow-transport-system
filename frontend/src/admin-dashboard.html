@@ -1,0 +1,1347 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Escrow Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #050816;
+        --bg-soft: #0f172a;
+        --bg-softer: #020617;
+        --accent: #3b82f6;
+        --accent-soft: rgba(59, 130, 246, 0.15);
+        --accent-strong: #2563eb;
+        --danger: #ef4444;
+        --danger-soft: rgba(239, 68, 68, 0.12);
+        --border-subtle: rgba(148, 163, 184, 0.35);
+        --text: #e5e7eb;
+        --text-soft: #9ca3af;
+        --radius-lg: 14px;
+        --radius-md: 10px;
+        --transition-fast: 150ms ease-out;
+        --shadow-soft: 0 22px 45px rgba(15, 23, 42, 0.6);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+          "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top left, #1e293b 0, #020617 50%),
+          radial-gradient(circle at bottom right, #0f172a 0, #020617 55%);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        padding: 32px 16px;
+      }
+
+      .shell {
+        width: 100%;
+        max-width: 1180px;
+        background: linear-gradient(135deg, #020617 0, #020617 45%, #020617 100%);
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .shell-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid rgba(30, 64, 175, 0.65);
+        background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.28), transparent 55%);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .shell-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .shell-logo {
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 30% 30%, #93c5fd, #1d4ed8);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #0b1120;
+        font-weight: 700;
+        font-size: 18px;
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.6);
+      }
+
+      .shell-heading-main {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .shell-heading-sub {
+        font-size: 13px;
+        color: var(--text-soft);
+      }
+
+      .shell-badges {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .badge {
+        font-size: 11px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        color: var(--text-soft);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.95));
+      }
+
+      .badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: #22c55e;
+        box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.6);
+      }
+
+      .shell-body {
+        padding: 18px 22px 20px;
+        display: grid;
+        grid-template-columns: minmax(0, 3fr) minmax(0, 1.25fr);
+        gap: 18px;
+      }
+
+      @media (max-width: 900px) {
+        .shell-body {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+
+      .panel {
+        background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(30, 64, 175, 0.55);
+        padding: 14px 14px 10px;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .panel-header {
+        padding: 4px 2px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .panel-title {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: #d1d5db;
+      }
+
+      .panel-description {
+        font-size: 12px;
+        color: var(--text-soft);
+        margin-top: 1px;
+      }
+
+      .panel-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      button {
+        font-family: inherit;
+      }
+
+      .btn {
+        border-radius: 999px;
+        font-size: 12px;
+        padding: 7px 12px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--text);
+        transition: background var(--transition-fast), border-color var(--transition-fast),
+          transform 80ms ease-out, box-shadow 80ms ease-out, color var(--transition-fast);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--accent) 0, var(--accent-strong) 100%);
+        border-color: rgba(59, 130, 246, 0.9);
+        color: #e5f1ff;
+        box-shadow: 0 12px 30px rgba(37, 99, 235, 0.5);
+      }
+
+      .btn-outline {
+        border-color: rgba(148, 163, 184, 0.55);
+        background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.97));
+        color: var(--text-soft);
+      }
+
+      .btn-danger {
+        background: radial-gradient(circle at top left, var(--danger), #b91c1c);
+        border-color: rgba(248, 113, 113, 0.9);
+        color: #fee2e2;
+        box-shadow: 0 12px 30px rgba(220, 38, 38, 0.4);
+      }
+
+      .btn-xs {
+        padding: 4px 9px;
+        font-size: 11px;
+      }
+
+      .btn-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: default;
+        box-shadow: none;
+      }
+
+      .btn:not(:disabled):hover {
+        transform: translateY(-1px);
+      }
+
+      .btn-primary:not(:disabled):hover {
+        background: linear-gradient(135deg, #60a5fa, #2563eb);
+      }
+
+      .btn-outline:not(:disabled):hover {
+        background: rgba(15, 23, 42, 0.95);
+        border-color: rgba(148, 163, 184, 0.9);
+        color: #e5e7eb;
+      }
+
+      .btn-danger:not(:disabled):hover {
+        background: linear-gradient(135deg, #f97373, #dc2626);
+      }
+
+      .btn-icon-only {
+        padding: 0;
+        width: 26px;
+        height: 26px;
+      }
+
+      .pill {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        padding: 3px 9px;
+        font-size: 11px;
+        color: var(--text-soft);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(15, 23, 42, 0.9);
+      }
+
+      .pill-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+      }
+
+      .pill-dot--locked {
+        background: #facc15;
+        box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.7);
+      }
+
+      .pill-dot--released {
+        background: #22c55e;
+        box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.7);
+      }
+
+      .pill-dot--refunded {
+        background: #f97316;
+        box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.7);
+      }
+
+      .pill-dot--unknown {
+        background: #9ca3af;
+        box-shadow: 0 0 0 1px rgba(156, 163, 175, 0.7);
+      }
+
+      .scroll-container {
+        margin-top: 6px;
+        border-radius: 12px;
+        border: 1px solid rgba(30, 64, 175, 0.5);
+        background: radial-gradient(circle at top left, #020617, #020617);
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.8);
+        padding: 0;
+        overflow: hidden;
+        position: relative;
+        min-height: 220px;
+        max-height: 420px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .scroll-inner {
+        overflow: auto;
+        flex: 1;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+
+      thead {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: linear-gradient(
+          180deg,
+          rgba(15, 23, 42, 0.98),
+          rgba(15, 23, 42, 0.98)
+        );
+        box-shadow: 0 1px 0 rgba(30, 64, 175, 0.6);
+      }
+
+      th,
+      td {
+        padding: 9px 10px;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      th {
+        font-weight: 500;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #9ca3af;
+      }
+
+      tbody tr {
+        border-bottom: 1px solid rgba(15, 23, 42, 0.95);
+      }
+
+      tbody tr:nth-child(2n) {
+        background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.85));
+      }
+
+      tbody tr:hover {
+        background: linear-gradient(90deg, rgba(30, 64, 175, 0.25), transparent 60%);
+      }
+
+      td {
+        font-size: 12px;
+        color: #e5e7eb;
+      }
+
+      .cell-id {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 11px;
+        color: #cbd5f5;
+      }
+
+      .cell-amount {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .cell-address {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 11px;
+        color: #9ca3af;
+      }
+
+      .cell-date {
+        font-size: 11px;
+        color: #9ca3af;
+      }
+
+      .status-chip {
+        font-size: 11px;
+        border-radius: 999px;
+        padding: 3px 9px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 500;
+      }
+
+      .status-chip--LOCKED {
+        background: rgba(234, 179, 8, 0.1);
+        color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.85);
+      }
+
+      .status-chip--RELEASED {
+        background: rgba(34, 197, 94, 0.1);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.85);
+      }
+
+      .status-chip--REFUNDED {
+        background: rgba(249, 115, 22, 0.12);
+        color: #fdba74;
+        border: 1px solid rgba(249, 115, 22, 0.9);
+      }
+
+      .status-chip--UNKNOWN {
+        background: rgba(148, 163, 184, 0.15);
+        color: #e5e7eb;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+      }
+
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+      }
+
+      .status-dot--LOCKED {
+        background: #facc15;
+      }
+
+      .status-dot--RELEASED {
+        background: #22c55e;
+      }
+
+      .status-dot--REFUNDED {
+        background: #fb923c;
+      }
+
+      .status-dot--UNKNOWN {
+        background: #9ca3af;
+      }
+
+      .empty-state {
+        padding: 46px 24px 32px;
+        text-align: center;
+        color: var(--text-soft);
+      }
+
+      .empty-title {
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+
+      .empty-sub {
+        font-size: 12px;
+      }
+
+      .empty-icon {
+        margin-bottom: 12px;
+        display: inline-flex;
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.28), transparent 65%);
+        border: 1px solid rgba(37, 99, 235, 0.7);
+        color: #bfdbfe;
+      }
+
+      .metrics-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .metric-card {
+        flex: 1 1 120px;
+        min-width: 0;
+        padding: 8px 9px;
+        border-radius: 10px;
+        border: 1px solid rgba(15, 23, 42, 0.85);
+        background: radial-gradient(circle at top left, #020617, #020617);
+      }
+
+      .metric-label {
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #6b7280;
+        margin-bottom: 4px;
+      }
+
+      .metric-value {
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .metric-sub {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-top: 2px;
+      }
+
+      .detail-body {
+        margin-top: 8px;
+        border-radius: 10px;
+        border: 1px solid rgba(15, 23, 42, 0.85);
+        background: radial-gradient(circle at top left, #020617, #020617);
+        padding: 10px 11px;
+        font-size: 12px;
+      }
+
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 6px;
+        gap: 8px;
+      }
+
+      .detail-label {
+        font-size: 11px;
+        color: #9ca3af;
+      }
+
+      .detail-value {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 11px;
+        color: #e5e7eb;
+        text-align: right;
+      }
+
+      .detail-status {
+        margin-top: 8px;
+        padding-top: 7px;
+        border-top: 1px dashed rgba(30, 64, 175, 0.6);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .detail-status-text {
+        font-size: 11px;
+        color: #9ca3af;
+      }
+
+      .detail-json {
+        margin-top: 8px;
+        padding: 8px 9px;
+        border-radius: 8px;
+        background: radial-gradient(circle at top left, #020617, #020617);
+        border: 1px solid rgba(15, 23, 42, 0.9);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 11px;
+        color: #9ca3af;
+        max-height: 160px;
+        overflow: auto;
+      }
+
+      .detail-placeholder {
+        font-size: 12px;
+        color: #6b7280;
+        padding: 18px 2px 6px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        padding: 3px 7px;
+        border-radius: 999px;
+        border: 1px solid rgba(37, 99, 235, 0.7);
+        background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.2), transparent 65%);
+        color: #bfdbfe;
+      }
+
+      .tag-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: #60a5fa;
+      }
+
+      .callout {
+        margin-top: 10px;
+        border-radius: 10px;
+        padding: 8px 9px;
+        font-size: 11px;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        border: 1px solid rgba(30, 64, 175, 0.6);
+        background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+        color: #9ca3af;
+      }
+
+      .callout-icon {
+        font-size: 14px;
+      }
+
+      .toast {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        padding: 10px 13px;
+        border-radius: 12px;
+        border: 1px solid rgba(15, 23, 42, 0.9);
+        background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 1));
+        color: #e5e7eb;
+        font-size: 12px;
+        min-width: 220px;
+        max-width: 320px;
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.7);
+        display: none;
+        z-index: 50;
+      }
+
+      .toast--error {
+        border-color: rgba(248, 113, 113, 0.9);
+        background: radial-gradient(circle at top left, rgba(239, 68, 68, 0.2), rgba(15, 23, 42, 1));
+      }
+
+      .toast--success {
+        border-color: rgba(34, 197, 94, 0.9);
+        background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.18), rgba(15, 23, 42, 1));
+      }
+
+      .toast-title {
+        font-weight: 500;
+        margin-bottom: 3px;
+        font-size: 12px;
+      }
+
+      .toast-message {
+        font-size: 11px;
+        color: #e5e7eb;
+      }
+
+      .toast-close {
+        position: absolute;
+        right: 8px;
+        top: 6px;
+        border: none;
+        background: transparent;
+        color: #9ca3af;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .loading-overlay {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.98));
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 3;
+      }
+
+      .loading-overlay.active {
+        display: flex;
+      }
+
+      .loading-spinner {
+        border-radius: 999px;
+        width: 30px;
+        height: 30px;
+        border: 2px solid rgba(55, 65, 81, 0.9);
+        border-top-color: #60a5fa;
+        animation: spin 700ms linear infinite;
+        margin-right: 10px;
+      }
+
+      .loading-text {
+        font-size: 12px;
+        color: #e5e7eb;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="shell-header">
+        <div class="shell-title">
+          <div class="shell-logo">Ξ</div>
+          <div>
+            <div class="shell-heading-main">
+              Escrow Admin
+              <span class="tag">
+                <span class="tag-dot"></span>
+                On-chain funds safety
+              </span>
+            </div>
+            <div class="shell-heading-sub">
+              Monitor and manage all ride escrow transactions.
+            </div>
+          </div>
+        </div>
+        <div class="shell-badges">
+          <div class="badge">
+            <span class="badge-dot"></span>
+            Node backend · `http://localhost:3000/api/escrow`
+          </div>
+        </div>
+      </header>
+
+      <main class="shell-body">
+        <section class="panel" aria-label="Escrow table">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Escrow transactions</div>
+              <div class="panel-description">
+                View order IDs, balances, contract addresses, and statuses.
+              </div>
+            </div>
+            <div class="panel-actions">
+              <button id="refreshButton" class="btn btn-outline">
+                <span>Refresh</span>
+              </button>
+              <button id="hardRefreshButton" class="btn btn-primary">
+                <span>Sync with backend</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="scroll-container">
+            <div id="tableLoadingOverlay" class="loading-overlay" aria-hidden="true">
+              <div style="display: flex; align-items: center">
+                <div class="loading-spinner" aria-hidden="true"></div>
+                <div class="loading-text">Loading escrows from backend…</div>
+              </div>
+            </div>
+            <div class="scroll-inner">
+              <table aria-label="Escrow transactions">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Amount (ETH)</th>
+                    <th>Status</th>
+                    <th>Contract address</th>
+                    <th>Created</th>
+                    <th style="text-align: right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="escrowTableBody">
+                  <!-- rows injected via JS -->
+                </tbody>
+              </table>
+              <div id="escrowEmptyState" class="empty-state" style="display: none">
+                <div class="empty-icon">ꜛ</div>
+                <div class="empty-title">No escrow transactions yet</div>
+                <div class="empty-sub">
+                  As soon as riders create bookings, new escrows will appear here.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel" aria-label="Escrow details">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Escrow detail &amp; status</div>
+              <div class="panel-description">
+                Inspect individual orders, confirm on-chain status, and trigger refunds.
+              </div>
+            </div>
+            <div class="panel-actions">
+              <button
+                id="refreshStatusButton"
+                class="btn btn-outline btn-xs"
+                disabled
+              >
+                <span>Refresh status</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="metrics-row" id="metricsRow">
+            <div class="metric-card">
+              <div class="metric-label">Selected order</div>
+              <div id="metricOrderId" class="metric-value">—</div>
+              <div id="metricOrderHint" class="metric-sub">Choose a row to inspect.</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Escrow status</div>
+              <div id="metricStatus" class="metric-value">—</div>
+              <div id="metricStatusHint" class="metric-sub">Awaiting selection.</div>
+            </div>
+          </div>
+
+          <div class="detail-body" id="detailBody">
+            <div id="detailPlaceholder" class="detail-placeholder">
+              Select an escrow row on the left to view full details, check blockchain
+              status, and trigger refunds if needed.
+            </div>
+
+            <div id="detailContent" style="display: none">
+              <div class="detail-row">
+                <div class="detail-label">Order ID</div>
+                <div id="detailOrderId" class="detail-value">—</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Amount</div>
+                <div id="detailAmount" class="detail-value">—</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Contract</div>
+                <div id="detailContract" class="detail-value">—</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Database status</div>
+                <div id="detailDbStatus" class="detail-value">—</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Created at</div>
+                <div id="detailCreated" class="detail-value">—</div>
+              </div>
+
+              <div class="detail-status">
+                <div class="detail-status-text">
+                  Latest `/status/:orderId` response (blockchain-aware):
+                </div>
+                <div>
+                  <span id="detailStatusChip" class="status-chip status-chip--UNKNOWN">
+                    <span class="status-dot status-dot--UNKNOWN"></span>
+                    <span id="detailStatusChipText">UNKNOWN</span>
+                  </span>
+                </div>
+              </div>
+
+              <div id="detailStatusJson" class="detail-json"></div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <div class="callout-icon">ℹ</div>
+            <div>
+              All actions hit the existing backend at
+              <code>http://localhost:3000/api/escrow</code> using `fetch`. Errors are
+              surfaced here without breaking the UI.
+            </div>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <div id="toast" class="toast">
+      <button id="toastClose" class="toast-close" aria-label="Dismiss notification">
+        ×
+      </button>
+      <div class="toast-title" id="toastTitle"></div>
+      <div class="toast-message" id="toastMessage"></div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:3000/api/escrow";
+
+      const elements = {
+        tbody: document.getElementById("escrowTableBody"),
+        emptyState: document.getElementById("escrowEmptyState"),
+        tableLoadingOverlay: document.getElementById("tableLoadingOverlay"),
+        refreshButton: document.getElementById("refreshButton"),
+        hardRefreshButton: document.getElementById("hardRefreshButton"),
+        refreshStatusButton: document.getElementById("refreshStatusButton"),
+        metricOrderId: document.getElementById("metricOrderId"),
+        metricOrderHint: document.getElementById("metricOrderHint"),
+        metricStatus: document.getElementById("metricStatus"),
+        metricStatusHint: document.getElementById("metricStatusHint"),
+        detailPlaceholder: document.getElementById("detailPlaceholder"),
+        detailContent: document.getElementById("detailContent"),
+        detailOrderId: document.getElementById("detailOrderId"),
+        detailAmount: document.getElementById("detailAmount"),
+        detailContract: document.getElementById("detailContract"),
+        detailDbStatus: document.getElementById("detailDbStatus"),
+        detailCreated: document.getElementById("detailCreated"),
+        detailStatusChip: document.getElementById("detailStatusChip"),
+        detailStatusChipText: document.getElementById("detailStatusChipText"),
+        detailStatusJson: document.getElementById("detailStatusJson"),
+        toast: document.getElementById("toast"),
+        toastTitle: document.getElementById("toastTitle"),
+        toastMessage: document.getElementById("toastMessage"),
+        toastClose: document.getElementById("toastClose"),
+      };
+
+      const state = {
+        escrows: [],
+        loadingTable: false,
+        selected: null, // escrow row object
+        statusLoading: false,
+      };
+
+      function showToast(kind, title, message) {
+        if (!elements.toast) return;
+        elements.toast.classList.remove("toast--error", "toast--success");
+        elements.toast.classList.add(kind === "error" ? "toast--error" : "toast--success");
+        elements.toastTitle.textContent = title;
+        elements.toastMessage.textContent = message;
+        elements.toast.style.display = "block";
+        window.clearTimeout(showToast._timer);
+        showToast._timer = window.setTimeout(() => {
+          elements.toast.style.display = "none";
+        }, 5500);
+      }
+
+      elements.toastClose?.addEventListener("click", () => {
+        elements.toast.style.display = "none";
+      });
+
+      function setTableLoading(loading) {
+        state.loadingTable = loading;
+        if (loading) {
+          elements.tableLoadingOverlay?.classList.add("active");
+        } else {
+          elements.tableLoadingOverlay?.classList.remove("active");
+        }
+        if (elements.refreshButton) elements.refreshButton.disabled = loading;
+        if (elements.hardRefreshButton) elements.hardRefreshButton.disabled = loading;
+      }
+
+      function setStatusLoading(loading) {
+        state.statusLoading = loading;
+        if (elements.refreshStatusButton && state.selected) {
+          elements.refreshStatusButton.disabled = loading;
+        }
+      }
+
+      function formatAmount(amount) {
+        if (amount == null || isNaN(Number(amount))) return "—";
+        const num = Number(amount);
+        return num.toLocaleString(undefined, {
+          minimumFractionDigits: 3,
+          maximumFractionDigits: 6,
+        });
+      }
+
+      function formatDate(value) {
+        if (!value) return "—";
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return "—";
+        return (
+          d.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+          }) +
+          " · " +
+          d.toLocaleTimeString(undefined, {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        );
+      }
+
+      function getStatusMeta(status) {
+        const s = (status || "").toUpperCase();
+        if (s === "LOCKED") {
+          return {
+            label: "LOCKED",
+            chipClass: "status-chip--LOCKED",
+            dotClass: "status-dot--LOCKED",
+          };
+        }
+        if (s === "RELEASED") {
+          return {
+            label: "RELEASED",
+            chipClass: "status-chip--RELEASED",
+            dotClass: "status-dot--RELEASED",
+          };
+        }
+        if (s === "REFUNDED") {
+          return {
+            label: "REFUNDED",
+            chipClass: "status-chip--REFUNDED",
+            dotClass: "status-dot--REFUNDED",
+          };
+        }
+        return {
+          label: s || "UNKNOWN",
+          chipClass: "status-chip--UNKNOWN",
+          dotClass: "status-dot--UNKNOWN",
+        };
+      }
+
+      async function apiFetch(path, options) {
+        const url = API_BASE + path;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        try {
+          const res = await fetch(url, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            signal: controller.signal,
+            ...options,
+          });
+          const isJson = res.headers.get("content-type")?.includes("application/json");
+          const payload = isJson ? await res.json() : await res.text();
+          if (!res.ok) {
+            const message =
+              (payload && payload.error) ||
+              (typeof payload === "string" ? payload : "Unexpected backend error");
+            throw new Error(message);
+          }
+          return payload;
+        } finally {
+          clearTimeout(timeoutId);
+        }
+      }
+
+      async function fetchAllEscrows() {
+        setTableLoading(true);
+        try {
+          const escrows = await apiFetch("/escrows", { method: "GET" });
+          if (!Array.isArray(escrows)) {
+            throw new Error("Backend returned unexpected payload for /escrows");
+          }
+          state.escrows = escrows;
+          renderTable();
+        } catch (error) {
+          console.error("Failed to load escrows:", error);
+          showToast(
+            "error",
+            "Failed to load escrows",
+            error.message || "Check that the backend is running on port 3000."
+          );
+        } finally {
+          setTableLoading(false);
+        }
+      }
+
+      async function fetchEscrowStatus(orderId, { silent } = {}) {
+        if (!orderId) return;
+        setStatusLoading(true);
+        try {
+          const status = await apiFetch(`/status/${encodeURIComponent(orderId)}`, {
+            method: "GET",
+          });
+          applyStatusToSelection(orderId, status);
+          if (!silent) {
+            showToast(
+              "success",
+              "Status refreshed",
+              `Escrow for order ${orderId} is currently ${status.status}.`
+            );
+          }
+        } catch (error) {
+          console.error("Failed to fetch escrow status:", error);
+          showToast(
+            "error",
+            "Failed to fetch status",
+            error.message || "Unable to fetch status from backend."
+          );
+        } finally {
+          setStatusLoading(false);
+        }
+      }
+
+      async function triggerRefund(orderId) {
+        if (!orderId) return;
+        const confirmed = window.confirm(
+          `Refund escrow for order ${orderId}?\n\nThis will call POST /refund/${orderId} and mark the escrow as REFUNDED.`
+        );
+        if (!confirmed) return;
+
+        setTableLoading(true);
+        try {
+          const payload = await apiFetch(`/refund/${encodeURIComponent(orderId)}`, {
+            method: "POST",
+            body: JSON.stringify({}),
+          });
+          if (payload && payload.escrow) {
+            const updated = payload.escrow;
+            state.escrows = state.escrows.map((e) =>
+              String(e.order_id) === String(orderId) ? updated : e
+            );
+            renderTable();
+            if (state.selected && String(state.selected.order_id) === String(orderId)) {
+              selectEscrow(updated);
+            }
+          } else {
+            await fetchAllEscrows();
+          }
+          showToast(
+            "success",
+            "Refund triggered",
+            `Refund processed for order ${orderId}.`
+          );
+        } catch (error) {
+          console.error("Refund failed:", error);
+          showToast(
+            "error",
+            "Refund failed",
+            error.message || "Backend rejected the refund request."
+          );
+        } finally {
+          setTableLoading(false);
+        }
+      }
+
+      function renderTable() {
+        const tbody = elements.tbody;
+        if (!tbody) return;
+        tbody.innerHTML = "";
+
+        if (!state.escrows.length) {
+          if (elements.emptyState) elements.emptyState.style.display = "block";
+          return;
+        }
+        if (elements.emptyState) elements.emptyState.style.display = "none";
+
+        state.escrows.forEach((escrow) => {
+          const tr = document.createElement("tr");
+          const orderId = escrow.order_id ?? escrow.orderId ?? escrow.id;
+          const amount = escrow.amount;
+          const status = escrow.status;
+          const contract = escrow.contract_address ?? escrow.contractAddress;
+          const created =
+            escrow.created_at ??
+            escrow.createdAt ??
+            escrow.created_time ??
+            escrow.createdOn;
+
+          tr.dataset.orderId = orderId != null ? String(orderId) : "";
+
+          const tdId = document.createElement("td");
+          tdId.className = "cell-id";
+          tdId.textContent = orderId != null ? String(orderId) : "—";
+          tr.appendChild(tdId);
+
+          const tdAmount = document.createElement("td");
+          tdAmount.className = "cell-amount";
+          tdAmount.textContent = formatAmount(amount);
+          tr.appendChild(tdAmount);
+
+          const tdStatus = document.createElement("td");
+          const meta = getStatusMeta(status);
+          const chip = document.createElement("span");
+          chip.className = `status-chip ${meta.chipClass}`;
+          const dot = document.createElement("span");
+          dot.className = `status-dot ${meta.dotClass}`;
+          const label = document.createElement("span");
+          label.textContent = meta.label;
+          chip.appendChild(dot);
+          chip.appendChild(label);
+          tdStatus.appendChild(chip);
+          tr.appendChild(tdStatus);
+
+          const tdContract = document.createElement("td");
+          tdContract.className = "cell-address";
+          tdContract.textContent = contract || "—";
+          tr.appendChild(tdContract);
+
+          const tdCreated = document.createElement("td");
+          tdCreated.className = "cell-date";
+          tdCreated.textContent = formatDate(created);
+          tr.appendChild(tdCreated);
+
+          const tdActions = document.createElement("td");
+          tdActions.style.textAlign = "right";
+
+          const viewBtn = document.createElement("button");
+          viewBtn.className = "btn btn-outline btn-xs";
+          viewBtn.type = "button";
+          viewBtn.textContent = "View";
+          viewBtn.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            selectEscrow(escrow);
+          });
+
+          const refundBtn = document.createElement("button");
+          refundBtn.className = "btn btn-danger btn-xs";
+          refundBtn.type = "button";
+          refundBtn.textContent = "Refund";
+          refundBtn.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            triggerRefund(orderId);
+          });
+
+          tdActions.appendChild(viewBtn);
+          tdActions.appendChild(refundBtn);
+          tr.appendChild(tdActions);
+
+          tr.addEventListener("click", () => {
+            selectEscrow(escrow);
+          });
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      function selectEscrow(escrow) {
+        state.selected = escrow;
+
+        const orderId = escrow.order_id ?? escrow.orderId ?? escrow.id;
+        const amount = escrow.amount;
+        const contract = escrow.contract_address ?? escrow.contractAddress;
+        const created =
+          escrow.created_at ??
+          escrow.createdAt ??
+          escrow.created_time ??
+          escrow.createdOn;
+        const dbStatus = escrow.status;
+
+        if (elements.metricOrderId) {
+          elements.metricOrderId.textContent =
+            orderId != null ? String(orderId) : "—";
+        }
+        if (elements.metricOrderHint) {
+          elements.metricOrderHint.textContent = "From database row.";
+        }
+
+        if (elements.metricStatus) {
+          elements.metricStatus.textContent = dbStatus || "—";
+        }
+        if (elements.metricStatusHint) {
+          elements.metricStatusHint.textContent =
+            "Refresh to sync with `/status/:orderId`.";
+        }
+
+        if (elements.detailPlaceholder) elements.detailPlaceholder.style.display = "none";
+        if (elements.detailContent) elements.detailContent.style.display = "block";
+
+        if (elements.detailOrderId) {
+          elements.detailOrderId.textContent =
+            orderId != null ? String(orderId) : "—";
+        }
+        if (elements.detailAmount) {
+          elements.detailAmount.textContent = formatAmount(amount) + " ETH";
+        }
+        if (elements.detailContract) {
+          elements.detailContract.textContent = contract || "—";
+        }
+        if (elements.detailDbStatus) {
+          elements.detailDbStatus.textContent = dbStatus || "—";
+        }
+        if (elements.detailCreated) {
+          elements.detailCreated.textContent = formatDate(created);
+        }
+        if (elements.detailStatusJson) {
+          elements.detailStatusJson.textContent =
+            "Use “Refresh status” to fetch `/status/:orderId` for this order.";
+        }
+
+        if (elements.refreshStatusButton) {
+          elements.refreshStatusButton.disabled = false;
+        }
+
+        const headChip = elements.detailStatusChip;
+        const headText = elements.detailStatusChipText;
+        if (headChip && headText) {
+          const meta = getStatusMeta(dbStatus);
+          headChip.className = `status-chip ${meta.chipClass}`;
+          const existingDot = headChip.querySelector(".status-dot");
+          if (existingDot) existingDot.className = `status-dot ${meta.dotClass}`;
+          headText.textContent = meta.label;
+        }
+      }
+
+      function applyStatusToSelection(orderId, statusPayload) {
+        if (!state.selected || !statusPayload) return;
+        const selectedId = state.selected.order_id ?? state.selected.orderId ?? state.selected.id;
+        if (String(selectedId) !== String(orderId)) return;
+
+        const status = statusPayload.status || state.selected.status;
+        const amount = statusPayload.amount ?? state.selected.amount;
+        const contract = statusPayload.contractAddress ?? state.selected.contract_address;
+        const meta = getStatusMeta(status);
+
+        if (elements.metricStatus) {
+          elements.metricStatus.textContent = status || "—";
+        }
+        if (elements.metricStatusHint) {
+          elements.metricStatusHint.textContent = "Latest from `/status/:orderId`.";
+        }
+
+        if (elements.detailAmount) {
+          elements.detailAmount.textContent = formatAmount(amount) + " ETH";
+        }
+        if (elements.detailContract) {
+          elements.detailContract.textContent = contract || "—";
+        }
+        if (elements.detailDbStatus) {
+          elements.detailDbStatus.textContent = state.selected.status || "—";
+        }
+
+        const headChip = elements.detailStatusChip;
+        const headText = elements.detailStatusChipText;
+        if (headChip && headText) {
+          headChip.className = `status-chip ${meta.chipClass}`;
+          const existingDot = headChip.querySelector(".status-dot");
+          if (existingDot) existingDot.className = `status-dot ${meta.dotClass}`;
+          headText.textContent = meta.label;
+        }
+
+        if (elements.detailStatusJson) {
+          elements.detailStatusJson.textContent = JSON.stringify(statusPayload, null, 2);
+        }
+      }
+
+      if (elements.refreshButton) {
+        elements.refreshButton.addEventListener("click", () => {
+          fetchAllEscrows();
+        });
+      }
+
+      if (elements.hardRefreshButton) {
+        elements.hardRefreshButton.addEventListener("click", () => {
+          fetchAllEscrows();
+        });
+      }
+
+      if (elements.refreshStatusButton) {
+        elements.refreshStatusButton.addEventListener("click", () => {
+          if (!state.selected) return;
+          const orderId =
+            state.selected.order_id ?? state.selected.orderId ?? state.selected.id;
+          if (!orderId) return;
+          fetchEscrowStatus(orderId);
+        });
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        fetchAllEscrows();
+      });
+    </script>
+  </body>
+</html>
+
