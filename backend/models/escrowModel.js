@@ -26,12 +26,14 @@ async function createEscrow(orderId, contractAddress, txHash, amount, paymentId 
 }
 
 async function getEscrowById(id) {
+
   const result = await pool.query(
     "SELECT * FROM escrow_transactions WHERE id=$1",
     [id]
   );
 
   return result.rows[0];
+
 }
 
 async function releaseFunds(orderId) {
@@ -42,15 +44,24 @@ async function releaseFunds(orderId) {
   );
 
   return result.rows[0];
+
 }
 
-async function refundEscrow(id) {
+async function refundEscrow(orderId) {
+
   const result = await pool.query(
-    "UPDATE escrow_transactions SET status=$1 WHERE id=$2 RETURNING *",
-    ["REFUNDED", id]
+    "UPDATE escrow_transactions SET status=$1 WHERE order_id=$2 RETURNING *",
+    ["REFUNDED", orderId]
   );
 
   return result.rows[0];
+
 }
 
-module.exports = { getEscrows, createEscrow, getEscrowById, releaseFunds, refundEscrow };
+module.exports = {
+  getEscrows,
+  createEscrow,
+  getEscrowById,
+  releaseFunds,
+  refundEscrow
+};

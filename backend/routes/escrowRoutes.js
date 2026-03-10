@@ -12,28 +12,45 @@ const {
 
 const {
   createOrder,
+  submitDelivery,
   confirmDelivery,
   refundCustomer
 } = require("../services/blockchainService");
 
-// Test route
+/*
+Test Route
+*/
 router.get("/test", (req, res) => {
   res.json({ message: "Escrow routes working" });
 });
 
+/*
+Get All Escrows
+*/
 router.get("/escrows", async (req, res) => {
-  const data = await getEscrows();
-  res.json(data);
+  try {
+    const data = await getEscrows();
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
+/*
+Create Escrow (Customer books ride)
+*/
 router.post("/createEscrow", async (req, res) => {
-
   try {
 
     const { buyer_wallet, seller_wallet, amount } = req.body;
 
+    console.log("Creating escrow:", buyer_wallet, seller_wallet, amount);
+
+    // blockchain order creation
     const result = await createOrder(seller_wallet, amount);
 
+    // database entry
     const escrow = await createEscrow(
       result.orderId,
       process.env.CONTRACT_ADDRESS,
@@ -49,26 +66,47 @@ router.post("/createEscrow", async (req, res) => {
     });
 
   } catch (error) {
-
     console.error(error);
     res.status(500).json({ error: error.message });
-
   }
-
 });
 
-
-router.post("/confirmDelivery/:id", async (req, res) => {
-
+/*
+Driver submits delivery proof
+*/
+router.post("/submitDelivery/:orderId", async (req, res) => {
   try {
 
-    const { id } = req.params;
+    const { orderId } = req.params;
+
+    const proofHash = "DELIVERY_PROOF_123"; // temporary placeholder
+
+    const txHash = await submitDelivery(orderId, proofHash);
+
+    res.json({
+      message: "Delivery submitted",
+      transaction: txHash
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/*
+Customer confirms delivery → release funds
+*/
+router.post("/confirmDelivery/:orderId", async (req, res) => {
+  try {
+
+    const { orderId } = req.params;
 
     // blockchain call
-    const txHash = await confirmDelivery(id);
+    const txHash = await confirmDelivery(orderId);
 
     // database update
-    const escrow = await releaseFunds(id);
+    const escrow = await releaseFunds(orderId);
 
     res.json({
       message: "Delivery confirmed",
@@ -77,24 +115,22 @@ router.post("/confirmDelivery/:id", async (req, res) => {
     });
 
   } catch (error) {
-
     console.error(error);
     res.status(500).json({ error: error.message });
-
   }
-
 });
 
-
-router.post("/refund/:id", async (req, res) => {
-
+/*
+Admin refunds customer
+*/
+router.post("/refund/:orderId", async (req, res) => {
   try {
 
-    const { id } = req.params;
+    const { orderId } = req.params;
 
-    const txHash = await refundCustomer(id);
+    const txHash = await refundCustomer(orderId);
 
-    const escrow = await refundEscrow(id);
+    const escrow = await refundEscrow(orderId);
 
     res.json({
       message: "Refund processed",
@@ -103,23 +139,28 @@ router.post("/refund/:id", async (req, res) => {
     });
 
   } catch (error) {
-
     console.error(error);
     res.status(500).json({ error: error.message });
-
   }
-
 });
 
-
+/*
+Get single escrow
+*/
 router.get("/escrow/:id", async (req, res) => {
+  try {
 
-  const { id } = req.params;
+    const { id } = req.params;
 
-  const escrow = await getEscrowById(id);
+    const escrow = await getEscrowById(id);
 
-  res.json(escrow);
+    res.json(escrow);
 
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = router;
+

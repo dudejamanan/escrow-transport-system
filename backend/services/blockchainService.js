@@ -8,9 +8,10 @@ const contractABI =
 require("../../blockchain/artifacts/contracts/Escrow.sol/Escrow.json").abi;
 
 /*
-Wallets
+Wallet roles
 Customer → creates order
 Driver → submits delivery
+Admin → dispute resolution
 */
 
 const customerWallet = new ethers.Wallet(
@@ -20,6 +21,11 @@ const customerWallet = new ethers.Wallet(
 
 const driverWallet = new ethers.Wallet(
   process.env.DRIVER_PRIVATE_KEY,
+  provider
+);
+
+const adminWallet = new ethers.Wallet(
+  process.env.ADMIN_PRIVATE_KEY,
   provider
 );
 
@@ -35,6 +41,16 @@ const driverContract = new ethers.Contract(
   driverWallet
 );
 
+const adminContract = new ethers.Contract(
+  contractAddress,
+  contractABI,
+  adminWallet
+);
+
+/*
+Create Escrow Order
+*/
+
 async function createOrder(driverAddress, payment) {
 
   console.log("Creating blockchain order...");
@@ -49,10 +65,6 @@ async function createOrder(driverAddress, payment) {
 
   console.log("Transaction confirmed");
 
-  /*
-  Extract orderId from event
-  */
-
   const event = receipt.logs
     .map(log => {
       try {
@@ -62,6 +74,10 @@ async function createOrder(driverAddress, payment) {
       }
     })
     .find(e => e && e.name === "OrderCreated");
+
+  if (!event) {
+    throw new Error("OrderCreated event not found");
+  }
 
   const orderId = Number(event.args.orderId);
 
@@ -73,18 +89,28 @@ async function createOrder(driverAddress, payment) {
   };
 }
 
+/*
+Driver submits delivery proof
+*/
+
 async function submitDelivery(orderId, proofHash) {
 
-  console.log("Submitting delivery proof...");
+  console.log("Driver submitting delivery proof...");
 
   const tx = await driverContract.submitDelivery(orderId, proofHash);
 
+  console.log("Transaction:", tx.hash);
+
   await tx.wait();
 
-  console.log("Delivery proof submitted");
+  console.log("Delivery proof confirmed");
 
   return tx.hash;
 }
+
+/*
+Customer confirms delivery
+*/
 
 async function confirmDelivery(orderId) {
 
@@ -99,11 +125,19 @@ async function confirmDelivery(orderId) {
   return tx.hash;
 }
 
+/*
+Admin processes refund
+*/
+
 async function refundCustomer(orderId) {
 
-  const tx = await customerContract.refundCustomer(orderId);
+  console.log("Admin processing refund...");
+
+  const tx = await adminContract.refundCustomer(orderId);
 
   await tx.wait();
+
+  console.log("Refund completed");
 
   return tx.hash;
 }
