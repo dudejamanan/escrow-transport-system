@@ -87,3 +87,24 @@ module.exports = {
   getEscrowStatus
 };
 
+async function rateDriver(orderId, rating) {
+
+  const result = await pool.query(
+    `UPDATE escrow_transactions
+     SET driver_rating = $1
+     WHERE order_id = $2
+     RETURNING *`,
+    [rating, orderId]
+  );
+
+  return result.rows[0];
+}
+module.exports = {
+  getEscrows,
+  createEscrow,
+  getEscrowById,
+  releaseFunds,
+  refundEscrow,
+  getEscrowStatus,
+  rateDriver
+};

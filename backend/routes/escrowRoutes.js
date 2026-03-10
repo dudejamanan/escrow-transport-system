@@ -8,7 +8,8 @@ const {
   getEscrowById,
   releaseFunds,
   refundEscrow,
-  getEscrowStatus
+  getEscrowStatus,
+  rateDriver
 } = require("../models/escrowModel");
 
 const {
@@ -192,6 +193,31 @@ router.get("/status/:orderId", async (req, res) => {
 
 });
 
+router.post("/rateDriver/:orderId", async (req, res) => {
 
+  try {
+
+    const { orderId } = req.params;
+    const { rating } = req.body;
+
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ error: "Rating must be between 1 and 5" });
+    }
+
+    const updated = await rateDriver(orderId, rating);
+
+    res.json({
+      message: "Driver rated successfully",
+      escrow: updated
+    });
+
+  } catch (error) {
+
+    console.error(error);
+    res.status(500).json({ error: error.message });
+
+  }
+
+});
 module.exports = router;
 
