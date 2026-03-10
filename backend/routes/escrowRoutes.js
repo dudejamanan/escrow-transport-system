@@ -7,7 +7,8 @@ const {
   createEscrow,
   getEscrowById,
   releaseFunds,
-  refundEscrow
+  refundEscrow,
+  getEscrowStatus
 } = require("../models/escrowModel");
 
 const {
@@ -161,6 +162,36 @@ router.get("/escrow/:id", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+router.get("/status/:orderId", async (req, res) => {
+
+  try {
+
+    const { orderId } = req.params;
+
+    const escrow = await getEscrowStatus(orderId);
+
+    if (!escrow) {
+      return res.status(404).json({ error: "Escrow not found" });
+    }
+
+    res.json({
+      orderId: escrow.order_id,
+      status: escrow.status,
+      amount: escrow.amount,
+      contractAddress: escrow.contract_address
+    });
+
+  } catch (error) {
+
+    console.error(error);
+    res.status(500).json({ error: error.message });
+
+  }
+
+});
+
 
 module.exports = router;
 

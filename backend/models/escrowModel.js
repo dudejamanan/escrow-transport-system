@@ -65,3 +65,25 @@ module.exports = {
   releaseFunds,
   refundEscrow
 };
+
+
+async function getEscrowStatus(orderId) {
+
+  const result = await pool.query(
+    "SELECT order_id, status, amount, contract_address FROM escrow_transactions WHERE order_id = $1",
+    [orderId]
+  );
+
+  return result.rows[0];
+
+}
+
+module.exports = {
+  getEscrows,
+  createEscrow,
+  getEscrowById,
+  releaseFunds,
+  refundEscrow,
+  getEscrowStatus
+};
+
